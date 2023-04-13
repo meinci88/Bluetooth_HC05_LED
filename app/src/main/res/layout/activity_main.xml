@@ -12,7 +12,7 @@
 		android:id="@+id/spinner"
 		style="@android:style/Widget.Holo.Light.Spinner"
 		android:layout_width="match_parent"
-		android:layout_height="60dp"
+		android:layout_height="50dp"
 		android:layout_marginStart="10dp"
 		android:layout_marginTop="10dp"
 		android:layout_marginEnd="10dp"
@@ -23,6 +23,18 @@
 		android:gravity="center"
 		android:scrollbarStyle="outsideOverlay"
 		android:visibility="visible" />
+
+	<TextView
+		android:id="@+id/tv_BoundedDevice"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_below="@id/view_pager"
+		android:layout_centerHorizontal="true"
+		android:hint="bounded Device"
+		android:textAlignment="center"
+		android:textColorHint="#B5848689"
+		android:textSize="20sp"
+		android:textStyle="bold|italic" />
 
 	<com.google.android.material.tabs.TabLayout
 		android:id="@+id/tabLayout"
@@ -47,10 +59,11 @@
 			android:text="Settings" />
 
 	</com.google.android.material.tabs.TabLayout>
+
 	<androidx.viewpager2.widget.ViewPager2
 		android:id="@+id/view_pager"
 		android:layout_width="match_parent"
-		android:layout_height="match_parent"
+		android:layout_height="600dp"
 		android:layout_below="@id/tabLayout">
 
 	</androidx.viewpager2.widget.ViewPager2>

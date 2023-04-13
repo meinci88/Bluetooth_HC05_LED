@@ -6,12 +6,15 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.AttributeSet;
 import android.view.View;
@@ -20,40 +23,51 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Set;
+import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
+	static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 	Spinner spinner;
 	TabLayout tabLayout;
 	ViewPager2 viewPager2;
 	MyViewPagerAdapter myViewPagerAdapter;
-	BluetoothAdapter btAdapter;
+
 	private ArrayList<String> arrayList;
+	private ArrayList<String> arrayListname;
 	private ArrayAdapter<String> adapter;
 	Dialog dialog;
 	String item;
 	TextView textView;
+	TextView textView_BoundedDev;
+	String connectedDeviceName;
+	String connectedDeviceAddress;
+
+	BluetoothSocket btSocket = null;
+	BluetoothAdapter btAdapter;
+	String[] permissions = {"android.permission.BLUETOOTH_CONNECT"};
 
 
-	@SuppressLint("MissingInflatedId")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		textView_BoundedDev = findViewById(R.id.tv_BoundedDevice);
 
 		dialog = new Dialog(MainActivity.this);
 		dialog.setContentView(R.layout.custom_dialog);
 		dialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.background));
 		dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
 		dialog.setCancelable(false);
-
 
 		Button okey = dialog.findViewById(R.id.btn_okay);
 		Button cancel = dialog.findViewById(R.id.btn_cancel);
@@ -62,9 +76,34 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onClick(View v) {
 				//Mit dem Bluetoothgerät verbinden
-				Toast.makeText(MainActivity.this, "wird mit: " + item +" verbunden", Toast.LENGTH_SHORT).show();
-
+				BluetoothDevice BT_Device = btAdapter.getRemoteDevice(item);
+				if (ActivityCompat.checkSelfPermission(getApplicationContext(),
+						Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+				}
+				try {
+					btSocket = BT_Device.createRfcommSocketToServiceRecord(MY_UUID);
+					btSocket.getClass();
+					if (btSocket.isConnected()==false){
+						textView_BoundedDev.setText("");
+						btSocket.connect();
+						if (btSocket.isConnected()==true){
+							connectedDeviceName = btSocket.getRemoteDevice().getName();
+							connectedDeviceAddress = btSocket.getRemoteDevice().getAddress();
+							textView_BoundedDev.setText(connectedDeviceName);
+						}else {
+							textView_BoundedDev.setText("");
+						}
+					}else{
+						textView_BoundedDev.setText("");
+						connectedDeviceName = btSocket.getRemoteDevice().getName();
+						textView_BoundedDev.setText(connectedDeviceName);
+					}
+				} catch (IOException e) {
+					Toast.makeText(MainActivity.this, "leider nicht gebunden!", Toast.LENGTH_SHORT).show();
+					textView_BoundedDev.setText("");
+				}
 				dialog.dismiss();
+				spinner.setSelection(0);
 			}
 		});
 		cancel.setOnClickListener(new View.OnClickListener() {
@@ -73,6 +112,7 @@ public class MainActivity extends AppCompatActivity {
 				//Mit dem Bluetoothgerät nicht verbinden
 				Toast.makeText(MainActivity.this, "wurde nicht verbunden", Toast.LENGTH_SHORT).show();
 				dialog.dismiss();
+				spinner.setSelection(0);
 			}
 		});
 
@@ -96,7 +136,8 @@ public class MainActivity extends AppCompatActivity {
 		//Listet die gebundenen BL-Geräte
 		for (BluetoothDevice device:devices){
 			spinner.setAdapter(adapter);
-			arrayList.add(device.getName() + ":  " + String.valueOf(device));
+			//arrayListname.add(device.getName() + ":  " + String.valueOf(device));
+			arrayList.add(device.getAddress());
 			adapter.notifyDataSetChanged();
 		}
 		arrayList.add(0,"Bitte Bluetoothgerät wählen");
@@ -104,6 +145,7 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 				item = arrayList.get(position).toString();
+
 				Toast.makeText(MainActivity.this, "Item: " + item, Toast.LENGTH_SHORT).show();
 				if (item != "Bitte Bluetoothgerät wählen"){
 					TextView textView_dialog = dialog.findViewById(R.id.textView2);
@@ -143,6 +185,5 @@ public class MainActivity extends AppCompatActivity {
 		if (btAdapter.isEnabled()){
 			requestPermissions(permissions, 80);
 		}
-
 	}
 }
