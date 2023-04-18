@@ -73,16 +73,33 @@ public class MainActivity extends AppCompatActivity {
 		super.onDestroy();
 
 		unregisterReceiver(mBroadcastReceiver1);
+		unregisterReceiver(mBroadcastReceiver2);
+		unregisterReceiver(mBroadcastReceiver3);
 	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
-
+//*******Intentfilter1*****************************************************************
 		IntentFilter filter1 = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
 		registerReceiver(mBroadcastReceiver1, filter1);
+//*******Intentfilter1*****************************************************************
 
+//*******Intentfilter2*****************************************************************
+		IntentFilter filter2 = new IntentFilter();
+		filter2.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+		filter2.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+		filter2.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
+		registerReceiver(mBroadcastReceiver2, filter2);
+//*******Intentfilter2*****************************************************************
+
+//*******Intentfilter3*****************************************************************
+		IntentFilter filter3 = new IntentFilter();
+		filter3.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+		filter3.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+		registerReceiver(mBroadcastReceiver3, filter3);
+//*******Intentfilter3*****************************************************************
 
 		textView_Status = findViewById(R.id.tv_Status);
 		textView_BoundedDev = findViewById(R.id.tv_BoundedDevice);
@@ -213,7 +230,7 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	private final BroadcastReceiver mBroadcastReceiver1 = new BroadcastReceiver() {
-		
+
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			ImageView imageView = findViewById(R.id.BL_Icon);
@@ -237,6 +254,48 @@ public class MainActivity extends AppCompatActivity {
 						Toast.makeText(MainActivity.this, "Bluetooth wird im moment eingeschaltet", Toast.LENGTH_LONG).show();
 						break;
 				}
+			}
+		}
+	};
+
+	private final BroadcastReceiver mBroadcastReceiver2 = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			final String action = intent.getAction();
+
+			if(action.equals(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED)) {
+
+				int mode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, BluetoothAdapter.ERROR);
+
+				switch(mode){
+					case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
+						Toast.makeText(MainActivity.this, "SCAN_MODE_CONNECTABLE_DISCOVERABLE", Toast.LENGTH_LONG).show();
+						break;
+					case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
+						Toast.makeText(MainActivity.this, "SCAN_MODE_CONNECTABLE", Toast.LENGTH_LONG).show();
+						break;
+					case BluetoothAdapter.SCAN_MODE_NONE:
+						Toast.makeText(MainActivity.this, "SCAN_MODE_NONE", Toast.LENGTH_LONG).show();
+						break;
+				}
+			}
+		}
+	};
+
+	private final BroadcastReceiver mBroadcastReceiver3 = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			String action = intent.getAction();
+
+			switch (action){
+				case BluetoothDevice.ACTION_ACL_CONNECTED:
+					Toast.makeText(MainActivity.this, "ACTION_ACL_CONNECTED", Toast.LENGTH_LONG).show();
+					break;
+				case BluetoothDevice.ACTION_ACL_DISCONNECTED:
+					Toast.makeText(MainActivity.this, "ACTION_ACL_DISCONNECTED", Toast.LENGTH_LONG).show();
+					break;
 			}
 		}
 	};
