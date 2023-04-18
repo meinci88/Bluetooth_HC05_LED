@@ -17,6 +17,6 @@ public class Licht_EffekteFragment extends Fragment {
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 							 Bundle savedInstanceState) {
 		// Inflate the layout for this fragment
-		return inflater.inflate(R.layout.fragment_licht__effekte, container, false);
+		return inflater.inflate(R.layout.fragment_licht_effekte, container, false);
 	}
 }

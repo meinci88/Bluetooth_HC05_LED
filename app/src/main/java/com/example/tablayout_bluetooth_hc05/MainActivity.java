@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.Manifest;
@@ -12,16 +13,22 @@ import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.SyncStateContract;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
@@ -37,6 +44,8 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 	static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
+
 	Spinner spinner;
 	TabLayout tabLayout;
 	ViewPager2 viewPager2;
@@ -47,8 +56,11 @@ public class MainActivity extends AppCompatActivity {
 	private ArrayAdapter<String> adapter;
 	Dialog dialog;
 	String item;
-	TextView textView;
+	TextView textView_Status;
 	TextView textView_BoundedDev;
+
+
+
 	String connectedDeviceName;
 	String connectedDeviceAddress;
 
@@ -56,12 +68,26 @@ public class MainActivity extends AppCompatActivity {
 	BluetoothAdapter btAdapter;
 	String[] permissions = {"android.permission.BLUETOOTH_CONNECT"};
 
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+
+		unregisterReceiver(mBroadcastReceiver1);
+	}
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+		IntentFilter filter1 = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+		registerReceiver(mBroadcastReceiver1, filter1);
+
+
+		textView_Status = findViewById(R.id.tv_Status);
 		textView_BoundedDev = findViewById(R.id.tv_BoundedDevice);
+
+
 
 		dialog = new Dialog(MainActivity.this);
 		dialog.setContentView(R.layout.custom_dialog);
@@ -82,24 +108,24 @@ public class MainActivity extends AppCompatActivity {
 				}
 				try {
 					btSocket = BT_Device.createRfcommSocketToServiceRecord(MY_UUID);
-					btSocket.getClass();
-					if (btSocket.isConnected()==false){
+
+					if (btSocket.isConnected() == false) {
 						textView_BoundedDev.setText("");
 						btSocket.connect();
-						if (btSocket.isConnected()==true){
+						if (btSocket.isConnected() == true) {
 							connectedDeviceName = btSocket.getRemoteDevice().getName();
 							connectedDeviceAddress = btSocket.getRemoteDevice().getAddress();
 							textView_BoundedDev.setText(connectedDeviceName);
-						}else {
+						} else {
 							textView_BoundedDev.setText("");
 						}
-					}else{
+					} else {
 						textView_BoundedDev.setText("");
 						connectedDeviceName = btSocket.getRemoteDevice().getName();
 						textView_BoundedDev.setText(connectedDeviceName);
 					}
 				} catch (IOException e) {
-					Toast.makeText(MainActivity.this, "leider nicht gebunden!", Toast.LENGTH_SHORT).show();
+					//Toast.makeText(MainActivity.this, "leider nicht gebunden!", Toast.LENGTH_SHORT).show();
 					textView_BoundedDev.setText("");
 				}
 				dialog.dismiss();
@@ -134,25 +160,24 @@ public class MainActivity extends AppCompatActivity {
 		Set<BluetoothDevice> devices = btAdapter.getBondedDevices();
 		arrayList.clear();
 		//Listet die gebundenen BL-Geräte
-		for (BluetoothDevice device:devices){
+		for (BluetoothDevice device : devices) {
 			spinner.setAdapter(adapter);
 			//arrayListname.add(device.getName() + ":  " + String.valueOf(device));
 			arrayList.add(device.getAddress());
 			adapter.notifyDataSetChanged();
 		}
-		arrayList.add(0,"Bitte Bluetoothgerät wählen");
+		arrayList.add(0, "Bitte Bluetoothgerät wählen");
 		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
 			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				item = arrayList.get(position).toString();
-
-				Toast.makeText(MainActivity.this, "Item: " + item, Toast.LENGTH_SHORT).show();
-				if (item != "Bitte Bluetoothgerät wählen"){
+				item = arrayList.get(position);//In Spinner ausgewählte Position(item)
+				if (item != "Bitte Bluetoothgerät wählen") {
 					TextView textView_dialog = dialog.findViewById(R.id.textView2);
 					textView_dialog.setText("Möchten Sie mit : " + item + " verbinden?");//Text im Dialogfenster
 					dialog.show();
 				}
 			}
+
 			@Override
 			public void onNothingSelected(AdapterView<?> parent) {
 
@@ -182,8 +207,41 @@ public class MainActivity extends AppCompatActivity {
 			}
 		});
 
-		if (btAdapter.isEnabled()){
+		if (btAdapter.isEnabled()) {
 			requestPermissions(permissions, 80);
 		}
 	}
+
+	private final BroadcastReceiver mBroadcastReceiver1 = new BroadcastReceiver() {
+		
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			ImageView imageView = findViewById(R.id.BL_Icon);
+			final String action = intent.getAction();
+
+			if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+				final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+				switch(state) {
+					case BluetoothAdapter.STATE_OFF:
+						Toast.makeText(MainActivity.this, "Bluetooth ausgeschaltet", Toast.LENGTH_SHORT).show();
+						imageView.setBackgroundResource(R.drawable.bl_off_icon);
+						break;
+					case BluetoothAdapter.STATE_TURNING_OFF:
+						Toast.makeText(MainActivity.this, "Bluetooth wird im moment ausgeschaltet", Toast.LENGTH_SHORT).show();
+						break;
+					case BluetoothAdapter.STATE_ON:
+						Toast.makeText(MainActivity.this, "Bluetooth eingeschaltet", Toast.LENGTH_SHORT).show();
+						imageView.setBackgroundResource(R.drawable.bl_on_icon);
+						break;
+					case BluetoothAdapter.STATE_TURNING_ON:
+						Toast.makeText(MainActivity.this, "Bluetooth wird im moment eingeschaltet", Toast.LENGTH_LONG).show();
+						break;
+				}
+			}
+		}
+	};
 }
+
+
+
+
