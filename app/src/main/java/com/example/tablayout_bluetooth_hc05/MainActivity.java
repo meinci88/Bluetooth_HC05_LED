@@ -53,12 +53,14 @@ public class MainActivity extends AppCompatActivity {
 
 	private ArrayList<String> arrayList;
 	private ArrayList<String> arrayListname;
+	private ArrayList<String> newarrayList;
 	private ArrayAdapter<String> adapter;
 	Dialog dialog;
 	String item;
+	String newitem;
+	String itemname;
 	TextView textView_Status;
 	TextView textView_BoundedDev;
-
 
 
 	String connectedDeviceName;
@@ -68,126 +70,32 @@ public class MainActivity extends AppCompatActivity {
 	BluetoothAdapter btAdapter;
 	String[] permissions = {"android.permission.BLUETOOTH_CONNECT"};
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-
-		unregisterReceiver(mBroadcastReceiver1);
-		unregisterReceiver(mBroadcastReceiver2);
-		unregisterReceiver(mBroadcastReceiver3);
-	}
-
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_main);
-//*******Intentfilter1*****************************************************************
-		IntentFilter filter1 = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-		registerReceiver(mBroadcastReceiver1, filter1);
-//*******Intentfilter1*****************************************************************
-
-//*******Intentfilter2*****************************************************************
-		IntentFilter filter2 = new IntentFilter();
-		filter2.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
-		filter2.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
-		filter2.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
-		registerReceiver(mBroadcastReceiver2, filter2);
-//*******Intentfilter2*****************************************************************
-
-//*******Intentfilter3*****************************************************************
-		IntentFilter filter3 = new IntentFilter();
-		filter3.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
-		filter3.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-		registerReceiver(mBroadcastReceiver3, filter3);
-//*******Intentfilter3*****************************************************************
-
-		textView_Status = findViewById(R.id.tv_Status);
-		textView_BoundedDev = findViewById(R.id.tv_BoundedDevice);
-
-
-
-		dialog = new Dialog(MainActivity.this);
-		dialog.setContentView(R.layout.custom_dialog);
-		dialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.background));
-		dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-		dialog.setCancelable(false);
-
-		Button okey = dialog.findViewById(R.id.btn_okay);
-		Button cancel = dialog.findViewById(R.id.btn_cancel);
-
-		okey.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				//Mit dem Bluetoothgerät verbinden
-				BluetoothDevice BT_Device = btAdapter.getRemoteDevice(item);
-				if (ActivityCompat.checkSelfPermission(getApplicationContext(),
-						Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-				}
-				try {
-					btSocket = BT_Device.createRfcommSocketToServiceRecord(MY_UUID);
-
-					if (btSocket.isConnected() == false) {
-						textView_BoundedDev.setText("");
-						btSocket.connect();
-						if (btSocket.isConnected() == true) {
-							connectedDeviceName = btSocket.getRemoteDevice().getName();
-							connectedDeviceAddress = btSocket.getRemoteDevice().getAddress();
-							textView_BoundedDev.setText(connectedDeviceName);
-						} else {
-							textView_BoundedDev.setText("");
-						}
-					} else {
-						textView_BoundedDev.setText("");
-						connectedDeviceName = btSocket.getRemoteDevice().getName();
-						textView_BoundedDev.setText(connectedDeviceName);
-					}
-				} catch (IOException e) {
-					//Toast.makeText(MainActivity.this, "leider nicht gebunden!", Toast.LENGTH_SHORT).show();
-					textView_BoundedDev.setText("");
-				}
-				dialog.dismiss();
-				spinner.setSelection(0);
-			}
-		});
-		cancel.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				//Mit dem Bluetoothgerät nicht verbinden
-				Toast.makeText(MainActivity.this, "wurde nicht verbunden", Toast.LENGTH_SHORT).show();
-				dialog.dismiss();
-				spinner.setSelection(0);
-			}
-		});
-
-		spinner = findViewById(R.id.spinner);
-		tabLayout = findViewById(R.id.tabLayout);
-		viewPager2 = findViewById(R.id.view_pager);
-		myViewPagerAdapter = new MyViewPagerAdapter(this);
-		viewPager2.setAdapter(myViewPagerAdapter);
-		btAdapter = BluetoothAdapter.getDefaultAdapter();
-		String[] permissions = {"android.permission.BLUETOOTH_CONNECT"};
-
-		arrayList = new ArrayList<>();
-		adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, arrayList);
-
+	private void DevList() {
+		//*********************************************************************************************************
 		if (ActivityCompat.checkSelfPermission(getApplicationContext(),
 				android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
 			//Hier sollte eine user Warnung stehen!
 		}
 		Set<BluetoothDevice> devices = btAdapter.getBondedDevices();
-		arrayList.clear();
+		newarrayList.clear();
 		//Listet die gebundenen BL-Geräte
 		for (BluetoothDevice device : devices) {
+
 			spinner.setAdapter(adapter);
-			//arrayListname.add(device.getName() + ":  " + String.valueOf(device));
-			arrayList.add(device.getAddress());
+			//arrayListAdr.add(device.getAddress());
+			//arrayList.add(device.getAddress());
+			//arrayListname.add(device.getName());
+			newarrayList.add(device.getAddress() + " :" + (device.getName()));
 			adapter.notifyDataSetChanged();
 		}
-		arrayList.add(0, "Bitte Bluetoothgerät wählen");
+		newarrayList.add(0, "Bitte Bluetoothgerät wählen");
 		spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 			@Override
-			public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-				item = arrayList.get(position);//In Spinner ausgewählte Position(item)
+			public void onItemSelected(AdapterView<?> parent, View view, int positionAddressName, long id) {
+				//itemAdr = arrayListName.get(position);//In Spinner ausgewählte Position(itemAdr)
+				item = newarrayList.get(positionAddressName);
+				//itemname = arrayListname.get(positionName);
+
 				if (item != "Bitte Bluetoothgerät wählen") {
 					TextView textView_dialog = dialog.findViewById(R.id.textView2);
 					textView_dialog.setText("Möchten Sie mit : " + item + " verbinden?");//Text im Dialogfenster
@@ -200,106 +108,246 @@ public class MainActivity extends AppCompatActivity {
 
 			}
 		});
-
-		tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-			@Override
-			public void onTabSelected(TabLayout.Tab tab) {
-				viewPager2.setCurrentItem(tab.getPosition());
-			}
-
-			@Override
-			public void onTabUnselected(TabLayout.Tab tab) {
-			}
-
-			@Override
-			public void onTabReselected(TabLayout.Tab tab) {
-			}
-		});
-
-		viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
-			@Override
-			public void onPageSelected(int position) {
-				super.onPageSelected(position);
-				tabLayout.getTabAt(position).select();
-			}
-		});
-
-		if (btAdapter.isEnabled()) {
-			requestPermissions(permissions, 80);
-		}
 	}
-
-	private final BroadcastReceiver mBroadcastReceiver1 = new BroadcastReceiver() {
+//*******************************************************************************************************************
 
 		@Override
-		public void onReceive(Context context, Intent intent) {
+		protected void onDestroy () {
+			super.onDestroy();
+			unregisterReceiver(mBroadcastReceiver1);
+			unregisterReceiver(mBroadcastReceiver2);
+			unregisterReceiver(mBroadcastReceiver3);
+		}
+
+		@Override
+		protected void onStart () {
+			super.onStart();
 			ImageView imageView = findViewById(R.id.BL_Icon);
-			final String action = intent.getAction();
+			BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-			if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
-				final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-				switch(state) {
-					case BluetoothAdapter.STATE_OFF:
-						Toast.makeText(MainActivity.this, "Bluetooth ausgeschaltet", Toast.LENGTH_SHORT).show();
-						imageView.setBackgroundResource(R.drawable.bl_off_icon);
+			if (mBluetoothAdapter == null) {
+				// Device does not support Bluetooth
+			} else if (!mBluetoothAdapter.isEnabled()) {
+				imageView.setBackgroundResource(R.drawable.bl_off_icon);
+			} else {
+				imageView.setBackgroundResource(R.drawable.bl_on_icon);
+				DevList();
+			}
+		}
+
+		@Override
+		protected void onCreate (Bundle savedInstanceState){
+			super.onCreate(savedInstanceState);
+			setContentView(R.layout.activity_main);
+
+//*******Intentfilter1*****************************************************************
+			IntentFilter filter1 = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+			registerReceiver(mBroadcastReceiver1, filter1);
+//*******Intentfilter1*****************************************************************
+
+//*******Intentfilter2*****************************************************************
+			IntentFilter filter2 = new IntentFilter();
+			filter2.addAction(BluetoothAdapter.ACTION_DISCOVERY_STARTED);
+			filter2.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
+			filter2.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
+			registerReceiver(mBroadcastReceiver2, filter2);
+//*******Intentfilter2*****************************************************************
+
+//*******Intentfilter3*****************************************************************
+			IntentFilter filter3 = new IntentFilter();
+			filter3.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+			filter3.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+			registerReceiver(mBroadcastReceiver3, filter3);
+//*******Intentfilter3*****************************************************************
+
+			textView_Status = findViewById(R.id.tv_Status);
+			textView_BoundedDev = findViewById(R.id.tv_BoundedDevice);
+
+
+			dialog = new Dialog(MainActivity.this);
+			dialog.setContentView(R.layout.custom_dialog);
+			dialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.background));
+			dialog.getWindow().setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+			dialog.setCancelable(false);
+
+			Button okey = dialog.findViewById(R.id.btn_okay);
+			Button cancel = dialog.findViewById(R.id.btn_cancel);
+
+			okey.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					//Mit dem Bluetoothgerät verbinden
+					newitem = item.substring(0,17);//item beinhaltet Devive adresse und name. newitem beinhaltet nur die Device adresse.
+					BluetoothDevice BT_Device = btAdapter.getRemoteDevice(newitem);
+					if (ActivityCompat.checkSelfPermission(getApplicationContext(),
+							Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+					}
+					try {
+						btSocket = BT_Device.createRfcommSocketToServiceRecord(MY_UUID);
+						btSocket.connect();
+						textView_BoundedDev.setText(item);
+
+					} catch (IOException e) {
+
+					}
+					dialog.dismiss();
+					spinner.setSelection(0);
+				}
+			});
+
+			cancel.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					//Mit dem Bluetoothgerät nicht verbinden
+					Toast.makeText(MainActivity.this, "wurde nicht verbunden", Toast.LENGTH_SHORT).show();
+					dialog.dismiss();
+					spinner.setSelection(0);
+				}
+			});
+
+			spinner = findViewById(R.id.spinner);
+			tabLayout = findViewById(R.id.tabLayout);
+			viewPager2 = findViewById(R.id.view_pager);
+			myViewPagerAdapter = new MyViewPagerAdapter(this);
+			viewPager2.setAdapter(myViewPagerAdapter);
+			btAdapter = BluetoothAdapter.getDefaultAdapter();
+			String[] permissions = {"android.permission.BLUETOOTH_CONNECT"};
+
+			newarrayList = new ArrayList<>();
+			//arrayListname = new ArrayList<>();
+			adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, newarrayList);
+
+
+			if (ActivityCompat.checkSelfPermission(getApplicationContext(),
+					android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+				//Hier sollte eine user Warnung stehen!
+			}
+			Set<BluetoothDevice> devices = btAdapter.getBondedDevices();
+			newarrayList.clear();
+			//Listet die gebundenen BL-Geräte
+			for (BluetoothDevice device : devices) {
+				spinner.setAdapter(adapter);
+				//arrayListname.add(device.getName() + ":  " + String.valueOf(device));
+				newarrayList.add(device.getAddress());
+				adapter.notifyDataSetChanged();
+			}
+			newarrayList.add(0, "Bitte Bluetoothgerät wählen");
+			spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+				@Override
+				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+					item = newarrayList.get(position);//In Spinner ausgewählte Position(item)
+					if (item != "Bitte Bluetoothgerät wählen") {
+						TextView textView_dialog = dialog.findViewById(R.id.textView2);
+						textView_dialog.setText("Möchten Sie mit : " + item + " verbinden?");//Text im Dialogfenster
+						dialog.show();
+					}
+				}
+
+				@Override
+				public void onNothingSelected(AdapterView<?> parent) {
+
+				}
+			});
+
+			tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+				@Override
+				public void onTabSelected(TabLayout.Tab tab) {
+					viewPager2.setCurrentItem(tab.getPosition());
+				}
+
+				@Override
+				public void onTabUnselected(TabLayout.Tab tab) {
+				}
+
+				@Override
+				public void onTabReselected(TabLayout.Tab tab) {
+				}
+			});
+
+			viewPager2.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+				@Override
+				public void onPageSelected(int position) {
+					super.onPageSelected(position);
+					tabLayout.getTabAt(position).select();
+				}
+			});
+
+			if (btAdapter.isEnabled()) {
+				requestPermissions(permissions, 80);
+			}
+		}
+
+		private final BroadcastReceiver mBroadcastReceiver1 = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				ImageView imageView = findViewById(R.id.BL_Icon);
+				final String action = intent.getAction();
+
+				if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+					final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+					switch (state) {
+						case BluetoothAdapter.STATE_OFF:
+							Toast.makeText(MainActivity.this, "Bluetooth ausgeschaltet", Toast.LENGTH_SHORT).show();
+							imageView.setBackgroundResource(R.drawable.bl_off_icon);
+							break;
+						case BluetoothAdapter.STATE_TURNING_OFF:
+							Toast.makeText(MainActivity.this, "Bluetooth wird im moment ausgeschaltet", Toast.LENGTH_SHORT).show();
+							break;
+						case BluetoothAdapter.STATE_ON:
+							Toast.makeText(MainActivity.this, "Bluetooth eingeschaltet", Toast.LENGTH_SHORT).show();
+							imageView.setBackgroundResource(R.drawable.bl_on_icon);
+							break;
+						case BluetoothAdapter.STATE_TURNING_ON:
+							Toast.makeText(MainActivity.this, "Bluetooth wird im moment eingeschaltet", Toast.LENGTH_LONG).show();
+							break;
+					}
+				}
+			}
+		};
+
+		private final BroadcastReceiver mBroadcastReceiver2 = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				final String action = intent.getAction();
+
+				if (action.equals(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED)) {
+
+					int mode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, BluetoothAdapter.ERROR);
+
+					switch (mode) {
+						case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
+							Toast.makeText(MainActivity.this, "SCAN_MODE_CONNECTABLE_DISCOVERABLE", Toast.LENGTH_LONG).show();
+							break;
+						case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
+							Toast.makeText(MainActivity.this, "SCAN_MODE_CONNECTABLE", Toast.LENGTH_LONG).show();
+							break;
+						case BluetoothAdapter.SCAN_MODE_NONE:
+							Toast.makeText(MainActivity.this, "SCAN_MODE_NONE", Toast.LENGTH_LONG).show();
+							break;
+					}
+				}
+			}
+		};
+
+		private final BroadcastReceiver mBroadcastReceiver3 = new BroadcastReceiver() {
+
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				String action = intent.getAction();
+
+				switch (action) {
+					case BluetoothDevice.ACTION_ACL_CONNECTED:
+						Toast.makeText(MainActivity.this, "ACTION_ACL_CONNECTED", Toast.LENGTH_LONG).show();
 						break;
-					case BluetoothAdapter.STATE_TURNING_OFF:
-						Toast.makeText(MainActivity.this, "Bluetooth wird im moment ausgeschaltet", Toast.LENGTH_SHORT).show();
-						break;
-					case BluetoothAdapter.STATE_ON:
-						Toast.makeText(MainActivity.this, "Bluetooth eingeschaltet", Toast.LENGTH_SHORT).show();
-						imageView.setBackgroundResource(R.drawable.bl_on_icon);
-						break;
-					case BluetoothAdapter.STATE_TURNING_ON:
-						Toast.makeText(MainActivity.this, "Bluetooth wird im moment eingeschaltet", Toast.LENGTH_LONG).show();
+					case BluetoothDevice.ACTION_ACL_DISCONNECTED:
+						Toast.makeText(MainActivity.this, "ACTION_ACL_DISCONNECTED", Toast.LENGTH_LONG).show();
 						break;
 				}
 			}
-		}
-	};
-
-	private final BroadcastReceiver mBroadcastReceiver2 = new BroadcastReceiver() {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			final String action = intent.getAction();
-
-			if(action.equals(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED)) {
-
-				int mode = intent.getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE, BluetoothAdapter.ERROR);
-
-				switch(mode){
-					case BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE:
-						Toast.makeText(MainActivity.this, "SCAN_MODE_CONNECTABLE_DISCOVERABLE", Toast.LENGTH_LONG).show();
-						break;
-					case BluetoothAdapter.SCAN_MODE_CONNECTABLE:
-						Toast.makeText(MainActivity.this, "SCAN_MODE_CONNECTABLE", Toast.LENGTH_LONG).show();
-						break;
-					case BluetoothAdapter.SCAN_MODE_NONE:
-						Toast.makeText(MainActivity.this, "SCAN_MODE_NONE", Toast.LENGTH_LONG).show();
-						break;
-				}
-			}
-		}
-	};
-
-	private final BroadcastReceiver mBroadcastReceiver3 = new BroadcastReceiver() {
-
-		@Override
-		public void onReceive(Context context, Intent intent) {
-			String action = intent.getAction();
-
-			switch (action){
-				case BluetoothDevice.ACTION_ACL_CONNECTED:
-					Toast.makeText(MainActivity.this, "ACTION_ACL_CONNECTED", Toast.LENGTH_LONG).show();
-					break;
-				case BluetoothDevice.ACTION_ACL_DISCONNECTED:
-					Toast.makeText(MainActivity.this, "ACTION_ACL_DISCONNECTED", Toast.LENGTH_LONG).show();
-					break;
-			}
-		}
-	};
-}
+		};
+	}
 
 
 
