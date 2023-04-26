@@ -124,10 +124,14 @@ public class MainActivity extends AppCompatActivity {
 			ImageView imageView = findViewById(R.id.BL_Icon);
 			BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
+
+
 			if (mBluetoothAdapter == null) {
 				// Device does not support Bluetooth
 			} else if (!mBluetoothAdapter.isEnabled()) {
 				imageView.setBackgroundResource(R.drawable.bl_off_icon);
+				//spinner.setEnabled(false);
+				spinner.setVisibility(View.INVISIBLE);
 			} else {
 				imageView.setBackgroundResource(R.drawable.bl_on_icon);
 				DevList();
@@ -138,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
 		protected void onCreate (Bundle savedInstanceState){
 			super.onCreate(savedInstanceState);
 			//setContentView(R.layout.activity_main);
+			requestPermissions(permissions, 80);
 
 			binding = ActivityMainBinding.inflate(getLayoutInflater());
 			View view = binding.getRoot();
@@ -178,6 +183,7 @@ public class MainActivity extends AppCompatActivity {
 			Button cancel = dialog.findViewById(R.id.btn_cancel);
 			viewModel = new ViewModelProvider(this).get(ItemViewModel.class);
 
+
 			viewModel.getSelectedItem().observe(this, item ->{
 				try {
 
@@ -185,7 +191,7 @@ public class MainActivity extends AppCompatActivity {
 					//textView.setText(item);
 					outputStream.write(item.getBytes(StandardCharsets.UTF_8));
 				} catch (IOException e) {
-					e.printStackTrace();
+
 					//BTconnect();
 				}
 			});
@@ -196,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
 					//textView1.setText(item1);
 					outputStream.write(item1.getBytes(StandardCharsets.UTF_8));
 				} catch (IOException e) {
-					e.printStackTrace();
+
 					//BTconnect();
 				}
 			});
@@ -207,7 +213,7 @@ public class MainActivity extends AppCompatActivity {
 					//textView2.setText(item2);
 					outputStream.write(item2.getBytes(StandardCharsets.UTF_8));
 				} catch (IOException e) {
-					e.printStackTrace();
+
 					//BTconnect();
 				}
 			});
@@ -254,7 +260,7 @@ public class MainActivity extends AppCompatActivity {
 
 
 					} catch (IOException e) {
-
+						Toast.makeText(MainActivity.this, "konnte nicht verbinden", Toast.LENGTH_SHORT).show();
 					}
 					dialog.dismiss();
 					spinner.setSelection(0);
@@ -287,7 +293,10 @@ public class MainActivity extends AppCompatActivity {
 			if (ActivityCompat.checkSelfPermission(getApplicationContext(),
 					android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
 				//Hier sollte eine user Warnung stehen!
+
 			}
+			//(value = "android.permission.BLUETOOTH_CONNECT")
+
 			Set<BluetoothDevice> devices = btAdapter.getBondedDevices();
 			newarrayList.clear();
 			//Listet die gebundenen BL-Geräte
@@ -305,6 +314,7 @@ public class MainActivity extends AppCompatActivity {
 					if (item != "Bitte Bluetoothgerät wählen") {
 						TextView textView_dialog = dialog.findViewById(R.id.textView2);
 						textView_dialog.setText("Möchten Sie mit : " + item + " verbinden?");//Text im Dialogfenster
+
 						dialog.show();
 					}
 				}
@@ -357,6 +367,8 @@ public class MainActivity extends AppCompatActivity {
 							Toast.makeText(MainActivity.this, "Bluetooth ausgeschaltet", Toast.LENGTH_SHORT).show();
 							textView_BoundedDev.setText("");
 							imageView.setBackgroundResource(R.drawable.bl_off_icon);
+							//spinner.setEnabled(false);
+							spinner.setVisibility(View.INVISIBLE);
 							break;
 						case BluetoothAdapter.STATE_TURNING_OFF:
 							Toast.makeText(MainActivity.this, "Bluetooth wird im moment ausgeschaltet", Toast.LENGTH_SHORT).show();
@@ -364,6 +376,8 @@ public class MainActivity extends AppCompatActivity {
 						case BluetoothAdapter.STATE_ON:
 							Toast.makeText(MainActivity.this, "Bluetooth eingeschaltet", Toast.LENGTH_SHORT).show();
 							imageView.setBackgroundResource(R.drawable.bl_on_icon);
+							//spinner.setEnabled(true);
+							spinner.setVisibility(View.VISIBLE);
 							break;
 						case BluetoothAdapter.STATE_TURNING_ON:
 							Toast.makeText(MainActivity.this, "Bluetooth wird im moment eingeschaltet", Toast.LENGTH_LONG).show();
