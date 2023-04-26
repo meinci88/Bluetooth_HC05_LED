@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+	xmlns:tools="http://schemas.android.com/tools"
+	android:layout_width="match_parent"
+	android:layout_height="match_parent"
+	tools:context=".LichteffekteFragment">
+
+	<SeekBar
+		android:id="@+id/seekBar1"
+		style="@android:style/Widget.SeekBar"
+		android:layout_width="300dp"
+		android:layout_height="50dp"
+		android:layout_marginLeft="20dp"
+		android:layout_marginTop="150dp" />
+
+	<TextView
+		android:id="@+id/textViewSeekbarVal1"
+		android:layout_width="75dp"
+		android:layout_height="50dp"
+		android:layout_marginLeft="320dp"
+		android:layout_marginTop="150dp"
+		android:hint="0"
+		android:textAlignment="center"
+		android:textSize="26dp"
+		android:textStyle="bold" />
+
+	<SeekBar
+		android:id="@+id/seekBar2"
+		style="@android:style/Widget.SeekBar"
+		android:layout_width="300dp"
+		android:layout_height="50dp"
+		android:layout_marginLeft="20dp"
+		android:layout_marginTop="250dp" />
+
+	<TextView
+		android:id="@+id/textViewSeekbarVal2"
+		android:layout_width="75dp"
+		android:layout_height="50dp"
+		android:layout_marginLeft="320dp"
+		android:layout_marginTop="250dp"
+		android:hint="0"
+		android:textAlignment="center"
+		android:textSize="26dp"
+		android:textStyle="bold" />
+
+	<TextView
+		android:id="@+id/textViewSeekbarVal3"
+		android:layout_width="75dp"
+		android:layout_height="50dp"
+		android:layout_marginLeft="320dp"
+		android:layout_marginTop="350dp"
+		android:hint="0"
+		android:textAlignment="center"
+		android:textSize="26dp"
+		android:textStyle="bold" />
+
+	<SeekBar
+		android:id="@+id/seekBar3"
+		style="@android:style/Widget.SeekBar"
+		android:layout_width="300dp"
+		android:layout_height="50dp"
+		android:layout_marginLeft="20dp"
+		android:layout_marginTop="350dp" />
+
+</FrameLayout>

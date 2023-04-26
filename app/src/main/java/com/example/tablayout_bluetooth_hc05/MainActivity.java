@@ -4,6 +4,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.viewpager2.widget.ViewPager2;
 
@@ -28,28 +30,33 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.tablayout_bluetooth_hc05.databinding.ActivityMainBinding;
 import com.google.android.material.tabs.TabItem;
 import com.google.android.material.tabs.TabLayout;
 
 import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 	static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-
+	BluetoothSocket btSocket = null;
 
 	Spinner spinner;
 	TabLayout tabLayout;
 	ViewPager2 viewPager2;
 	MyViewPagerAdapter myViewPagerAdapter;
+	BluetoothAdapter btAdapter;
 
 	private ArrayList<String> arrayList;
 	private ArrayList<String> arrayListname;
@@ -61,15 +68,11 @@ public class MainActivity extends AppCompatActivity {
 	String itemname;
 	TextView textView_Status;
 	TextView textView_BoundedDev;
+	FrameLayout frameLayout;
 
-
-	String connectedDeviceName;
-	String connectedDeviceAddress;
-
-	BluetoothSocket btSocket = null;
-	BluetoothAdapter btAdapter;
 	String[] permissions = {"android.permission.BLUETOOTH_CONNECT"};
-
+	private ItemViewModel viewModel;
+	private ActivityMainBinding binding;
 	private void DevList() {
 		//*********************************************************************************************************
 		if (ActivityCompat.checkSelfPermission(getApplicationContext(),
@@ -80,12 +83,8 @@ public class MainActivity extends AppCompatActivity {
 		newarrayList.clear();
 		//Listet die gebundenen BL-Geräte
 		for (BluetoothDevice device : devices) {
-
 			spinner.setAdapter(adapter);
-			//arrayListAdr.add(device.getAddress());
-			//arrayList.add(device.getAddress());
-			//arrayListname.add(device.getName());
-			newarrayList.add(device.getAddress() + " :" + (device.getName()));
+			newarrayList.add(device.getAddress() + " ->" + (device.getName()));
 			adapter.notifyDataSetChanged();
 		}
 		newarrayList.add(0, "Bitte Bluetoothgerät wählen");
@@ -138,7 +137,13 @@ public class MainActivity extends AppCompatActivity {
 		@Override
 		protected void onCreate (Bundle savedInstanceState){
 			super.onCreate(savedInstanceState);
-			setContentView(R.layout.activity_main);
+			//setContentView(R.layout.activity_main);
+
+			binding = ActivityMainBinding.inflate(getLayoutInflater());
+			View view = binding.getRoot();
+			setContentView(view);
+
+			btAdapter = BluetoothAdapter.getDefaultAdapter();
 
 //*******Intentfilter1*****************************************************************
 			IntentFilter filter1 = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
@@ -163,7 +168,6 @@ public class MainActivity extends AppCompatActivity {
 			textView_Status = findViewById(R.id.tv_Status);
 			textView_BoundedDev = findViewById(R.id.tv_BoundedDevice);
 
-
 			dialog = new Dialog(MainActivity.this);
 			dialog.setContentView(R.layout.custom_dialog);
 			dialog.getWindow().setBackgroundDrawable(getDrawable(R.drawable.background));
@@ -172,6 +176,68 @@ public class MainActivity extends AppCompatActivity {
 
 			Button okey = dialog.findViewById(R.id.btn_okay);
 			Button cancel = dialog.findViewById(R.id.btn_cancel);
+			viewModel = new ViewModelProvider(this).get(ItemViewModel.class);
+
+			viewModel.getSelectedItem().observe(this, item ->{
+				try {
+
+					OutputStream outputStream = btSocket.getOutputStream();
+					//textView.setText(item);
+					outputStream.write(item.getBytes(StandardCharsets.UTF_8));
+				} catch (IOException e) {
+					e.printStackTrace();
+					//BTconnect();
+				}
+			});
+
+			viewModel.getSelectedItem1().observe(this, item1 ->{
+				try {
+					OutputStream outputStream = btSocket.getOutputStream();
+					//textView1.setText(item1);
+					outputStream.write(item1.getBytes(StandardCharsets.UTF_8));
+				} catch (IOException e) {
+					e.printStackTrace();
+					//BTconnect();
+				}
+			});
+
+			viewModel.getSelectedItem2().observe(this, item2 ->{
+				try {
+					OutputStream outputStream = btSocket.getOutputStream();
+					//textView2.setText(item2);
+					outputStream.write(item2.getBytes(StandardCharsets.UTF_8));
+				} catch (IOException e) {
+					e.printStackTrace();
+					//BTconnect();
+				}
+			});
+
+			myViewPagerAdapter = new MyViewPagerAdapter(this);
+			binding.viewPager.setAdapter(myViewPagerAdapter);
+			frameLayout = findViewById(R.id.frameLayout);
+
+			//region Tablayout addOnTabSelectedListener
+			binding.tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+
+				@Override
+				public void onTabSelected(TabLayout.Tab tab) {
+					binding.viewPager.setVisibility(View.VISIBLE);
+					binding.frameLayout.setVisibility(View.GONE);
+					binding.viewPager.setCurrentItem(tab.getPosition());
+				}
+
+				@Override
+				public void onTabUnselected(TabLayout.Tab tab) {
+				}
+
+				@Override
+				public void onTabReselected(TabLayout.Tab tab) {
+					binding.viewPager.setVisibility(View.VISIBLE);
+					binding.frameLayout.setVisibility(View.GONE);
+				}
+			});
+
+			//endregion
 
 			okey.setOnClickListener(new View.OnClickListener() {
 				@Override
@@ -185,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
 					try {
 						btSocket = BT_Device.createRfcommSocketToServiceRecord(MY_UUID);
 						btSocket.connect();
-						textView_BoundedDev.setText(item);
+
 
 					} catch (IOException e) {
 
@@ -289,6 +355,7 @@ public class MainActivity extends AppCompatActivity {
 					switch (state) {
 						case BluetoothAdapter.STATE_OFF:
 							Toast.makeText(MainActivity.this, "Bluetooth ausgeschaltet", Toast.LENGTH_SHORT).show();
+							textView_BoundedDev.setText("");
 							imageView.setBackgroundResource(R.drawable.bl_off_icon);
 							break;
 						case BluetoothAdapter.STATE_TURNING_OFF:
@@ -340,9 +407,11 @@ public class MainActivity extends AppCompatActivity {
 				switch (action) {
 					case BluetoothDevice.ACTION_ACL_CONNECTED:
 						Toast.makeText(MainActivity.this, "ACTION_ACL_CONNECTED", Toast.LENGTH_LONG).show();
+						textView_BoundedDev.setText(item);
 						break;
 					case BluetoothDevice.ACTION_ACL_DISCONNECTED:
 						Toast.makeText(MainActivity.this, "ACTION_ACL_DISCONNECTED", Toast.LENGTH_LONG).show();
+						textView_BoundedDev.setText("");
 						break;
 				}
 			}

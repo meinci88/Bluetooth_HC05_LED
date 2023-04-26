@@ -5,10 +5,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 
-import fragments.HomeFragment;
-import fragments.Licht_EffekteFragment;
-import fragments.SettingsFragment;
-
 public class MyViewPagerAdapter extends FragmentStateAdapter {
 	public MyViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
 		super(fragmentActivity);
@@ -21,7 +17,7 @@ public class MyViewPagerAdapter extends FragmentStateAdapter {
 			case 0:
 				return new HomeFragment();
 			case 1:
-				return  new Licht_EffekteFragment();
+				return  new LichteffekteFragment();
 			case 2:
 				return new SettingsFragment();
 			default:
