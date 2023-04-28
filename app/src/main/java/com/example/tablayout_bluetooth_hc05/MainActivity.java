@@ -50,7 +50,7 @@ import java.util.UUID;
 
 public class MainActivity extends AppCompatActivity {
 	static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
-	BluetoothSocket btSocket = null;
+	BluetoothSocket btSocket;
 
 	Spinner spinner;
 	TabLayout tabLayout;
@@ -73,6 +73,7 @@ public class MainActivity extends AppCompatActivity {
 	String[] permissions = {"android.permission.BLUETOOTH_CONNECT"};
 	private ItemViewModel viewModel;
 	private ActivityMainBinding binding;
+
 	private void DevList() {
 		//*********************************************************************************************************
 		if (ActivityCompat.checkSelfPermission(getApplicationContext(),
@@ -110,20 +111,30 @@ public class MainActivity extends AppCompatActivity {
 	}
 //*******************************************************************************************************************
 
-		@Override
-		protected void onDestroy () {
-			super.onDestroy();
-			unregisterReceiver(mBroadcastReceiver1);
-			unregisterReceiver(mBroadcastReceiver2);
-			unregisterReceiver(mBroadcastReceiver3);
-		}
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		unregisterReceiver(mBroadcastReceiver1);
+		unregisterReceiver(mBroadcastReceiver2);
+		unregisterReceiver(mBroadcastReceiver3);
+	}
 
-		@Override
-		protected void onStart () {
-			super.onStart();
-			ImageView imageView = findViewById(R.id.BL_Icon);
-			BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+	@Override
+	protected void onStart() {
+		super.onStart();
+		ImageView imageView = findViewById(R.id.BL_Icon);
+		BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+		imageView.setOnLongClickListener(new View.OnLongClickListener() {
+			@Override
+			public boolean onLongClick(View v) {
+				Toast.makeText(MainActivity.this, "kein Bluetooth, soll es eingeschaltet werden?", Toast.LENGTH_LONG).show();
+				if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
 
+				}
+				mBluetoothAdapter.enable();
+					return false;
+				}
+			});
 
 
 			if (mBluetoothAdapter == null) {
@@ -143,12 +154,19 @@ public class MainActivity extends AppCompatActivity {
 			super.onCreate(savedInstanceState);
 			//setContentView(R.layout.activity_main);
 			requestPermissions(permissions, 80);
+			BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
 			binding = ActivityMainBinding.inflate(getLayoutInflater());
 			View view = binding.getRoot();
 			setContentView(view);
 
 			btAdapter = BluetoothAdapter.getDefaultAdapter();
+
+			if (mBluetoothAdapter.isEnabled()){
+				if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
+				}
+				mBluetoothAdapter.enable();
+			}
 
 //*******Intentfilter1*****************************************************************
 			IntentFilter filter1 = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
@@ -186,11 +204,10 @@ public class MainActivity extends AppCompatActivity {
 
 			viewModel.getSelectedItem().observe(this, item ->{
 				try {
-
 					OutputStream outputStream = btSocket.getOutputStream();
 					//textView.setText(item);
 					outputStream.write(item.getBytes(StandardCharsets.UTF_8));
-				} catch (IOException e) {
+				} catch (Exception e) {
 
 					//BTconnect();
 				}
@@ -201,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
 					OutputStream outputStream = btSocket.getOutputStream();
 					//textView1.setText(item1);
 					outputStream.write(item1.getBytes(StandardCharsets.UTF_8));
-				} catch (IOException e) {
+				} catch (Exception e) {
 
 					//BTconnect();
 				}
@@ -212,7 +229,7 @@ public class MainActivity extends AppCompatActivity {
 					OutputStream outputStream = btSocket.getOutputStream();
 					//textView2.setText(item2);
 					outputStream.write(item2.getBytes(StandardCharsets.UTF_8));
-				} catch (IOException e) {
+				} catch (Exception e) {
 
 					//BTconnect();
 				}
@@ -314,7 +331,6 @@ public class MainActivity extends AppCompatActivity {
 					if (item != "Bitte Bluetoothgerät wählen") {
 						TextView textView_dialog = dialog.findViewById(R.id.textView2);
 						textView_dialog.setText("Möchten Sie mit : " + item + " verbinden?");//Text im Dialogfenster
-
 						dialog.show();
 					}
 				}

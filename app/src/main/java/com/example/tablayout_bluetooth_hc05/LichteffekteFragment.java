@@ -12,10 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 //import com.example.tablayout_bluetooth_hc05.databinding.FragmentLichtEffekteBinding;
 import com.example.tablayout_bluetooth_hc05.databinding.FragmentLichteffekteBinding;
 
+import java.io.IOException;
 
 public class LichteffekteFragment extends Fragment {
 	ItemViewModel viewModel;
@@ -40,6 +42,8 @@ public class LichteffekteFragment extends Fragment {
 		binding.seekBar1.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 			@Override
 			public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+				TextView textView;
+
 				String value = "A" + progress;
 				binding.seekBar2.setProgress(0);
 				binding.seekBar3.setProgress(0);

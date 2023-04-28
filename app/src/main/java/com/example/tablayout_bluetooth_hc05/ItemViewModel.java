@@ -8,15 +8,15 @@ public class ItemViewModel extends ViewModel {
 	private final MutableLiveData<String> selectedItem = new MutableLiveData<String>();
 	private final MutableLiveData<String> selectedItem_1 = new MutableLiveData<String>();
 	private final MutableLiveData<String> selectedItem_2 = new MutableLiveData<String>();
-	private final MutableLiveData<String> nameInput = new MutableLiveData<String>();
+	//private final MutableLiveData<String> nameInput = new MutableLiveData<String>();
 	//region setData
 
-	public void setName(String name){
+	/*public void setName(String name){
 		nameInput.setValue(name);
 	}
 	public LiveData<String> getName(){
 		return nameInput;
-	}
+	}*/
 
 
 	public void setData(String item){

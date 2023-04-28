@@ -101,7 +101,7 @@
 		android:layout_height="58dp"
 		android:layout_alignStart="@id/view_pager"
 		android:layout_marginStart="0dp"
-		/>
+		android:clickable="true" />
 
 
 </RelativeLayout>
