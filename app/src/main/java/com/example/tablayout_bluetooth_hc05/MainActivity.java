@@ -128,14 +128,11 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public boolean onLongClick(View v) {
 				Toast.makeText(MainActivity.this, "kein Bluetooth, soll es eingeschaltet werden?", Toast.LENGTH_LONG).show();
-				if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-
-				}
+				if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {}
 				mBluetoothAdapter.enable();
-					return false;
+				return false;
 				}
 			});
-
 
 			if (mBluetoothAdapter == null) {
 				// Device does not support Bluetooth
@@ -162,10 +159,10 @@ public class MainActivity extends AppCompatActivity {
 
 			btAdapter = BluetoothAdapter.getDefaultAdapter();
 
-			if (mBluetoothAdapter.isEnabled()){
-				if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
-				}
+			if (!mBluetoothAdapter.isEnabled()){
+				if (ActivityCompat.checkSelfPermission(getApplicationContext(), Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {}
 				mBluetoothAdapter.enable();
+				DevList();
 			}
 
 //*******Intentfilter1*****************************************************************
@@ -205,34 +202,22 @@ public class MainActivity extends AppCompatActivity {
 			viewModel.getSelectedItem().observe(this, item ->{
 				try {
 					OutputStream outputStream = btSocket.getOutputStream();
-					//textView.setText(item);
 					outputStream.write(item.getBytes(StandardCharsets.UTF_8));
-				} catch (Exception e) {
-
-					//BTconnect();
-				}
+				} catch (Exception e) {}
 			});
 
 			viewModel.getSelectedItem1().observe(this, item1 ->{
 				try {
 					OutputStream outputStream = btSocket.getOutputStream();
-					//textView1.setText(item1);
 					outputStream.write(item1.getBytes(StandardCharsets.UTF_8));
-				} catch (Exception e) {
-
-					//BTconnect();
-				}
+				} catch (Exception e) {}
 			});
 
 			viewModel.getSelectedItem2().observe(this, item2 ->{
 				try {
 					OutputStream outputStream = btSocket.getOutputStream();
-					//textView2.setText(item2);
 					outputStream.write(item2.getBytes(StandardCharsets.UTF_8));
-				} catch (Exception e) {
-
-					//BTconnect();
-				}
+				} catch (Exception e) {}
 			});
 
 			myViewPagerAdapter = new MyViewPagerAdapter(this);
@@ -274,8 +259,6 @@ public class MainActivity extends AppCompatActivity {
 					try {
 						btSocket = BT_Device.createRfcommSocketToServiceRecord(MY_UUID);
 						btSocket.connect();
-
-
 					} catch (IOException e) {
 						Toast.makeText(MainActivity.this, "konnte nicht verbinden", Toast.LENGTH_SHORT).show();
 					}

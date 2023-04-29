@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-	xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
 	xmlns:app="http://schemas.android.com/apk/res-auto"
 	xmlns:tools="http://schemas.android.com/tools"
 	android:layout_width="match_parent"
 	android:layout_height="wrap_content"
-	android:background="@android:color/white">
+	android:background="@android:color/white"
+	android:padding="20dp">
 
 
 	<TextView
@@ -13,15 +13,16 @@
 		android:layout_width="0dp"
 		android:layout_height="wrap_content"
 		android:layout_marginStart="16dp"
+		android:layout_marginTop="20dp"
 		android:layout_marginEnd="16dp"
 		android:text="Mit Bluetooth Gerät verbinden"
 		android:textAlignment="center"
-		android:textSize="24sp"
-		android:textStyle="bold"
+		android:textSize="20sp"
+		android:textStyle="italic"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintHorizontal_bias="1.0"
 		app:layout_constraintStart_toStartOf="parent"
-		tools:layout_editor_absoluteY="90dp" />
+		app:layout_constraintTop_toTopOf="parent" />
 
 	<View
 		android:id="@+id/divider"
@@ -41,10 +42,14 @@
 		android:layout_marginEnd="8dp"
 		android:layout_marginBottom="16dp"
 		android:background="@android:color/transparent"
+		android:backgroundTint="@color/material_dynamic_primary50"
 		android:stateListAnimator="@null"
 		android:text="Cancel"
+		android:textAlignment="center"
 		android:textAllCaps="false"
 		android:textColor="@android:color/holo_blue_dark"
+		android:textSize="20sp"
+		android:textStyle="bold"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toStartOf="@+id/divider"
 		app:layout_constraintStart_toStartOf="parent"
@@ -59,10 +64,14 @@
 		android:layout_marginEnd="16dp"
 		android:layout_marginBottom="16dp"
 		android:background="@android:color/transparent"
+		android:backgroundTint="@color/material_dynamic_primary50"
 		android:stateListAnimator="@null"
 		android:text="Okay"
+		android:textAlignment="center"
 		android:textAllCaps="false"
 		android:textColor="@android:color/holo_blue_dark"
+		android:textSize="20sp"
+		android:textStyle="bold"
 		app:layout_constraintBottom_toBottomOf="parent"
 		app:layout_constraintEnd_toEndOf="parent"
 		app:layout_constraintStart_toEndOf="@+id/divider"
