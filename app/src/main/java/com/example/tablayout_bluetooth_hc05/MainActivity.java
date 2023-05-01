@@ -14,6 +14,9 @@ import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -74,8 +77,8 @@ public class MainActivity extends AppCompatActivity {
 	private ItemViewModel viewModel;
 	private ActivityMainBinding binding;
 
+	//*********************************************************************************************************
 	private void DevList() {
-		//*********************************************************************************************************
 		if (ActivityCompat.checkSelfPermission(getApplicationContext(),
 				android.Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
 			//Hier sollte eine user Warnung stehen!
@@ -149,7 +152,6 @@ public class MainActivity extends AppCompatActivity {
 		@Override
 		protected void onCreate (Bundle savedInstanceState){
 			super.onCreate(savedInstanceState);
-			//setContentView(R.layout.activity_main);
 			requestPermissions(permissions, 80);
 			BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -168,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
 //*******Intentfilter1*****************************************************************
 			IntentFilter filter1 = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
 			registerReceiver(mBroadcastReceiver1, filter1);
-//*******Intentfilter1*****************************************************************
+
 
 //*******Intentfilter2*****************************************************************
 			IntentFilter filter2 = new IntentFilter();
@@ -176,14 +178,14 @@ public class MainActivity extends AppCompatActivity {
 			filter2.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
 			filter2.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
 			registerReceiver(mBroadcastReceiver2, filter2);
-//*******Intentfilter2*****************************************************************
+
 
 //*******Intentfilter3*****************************************************************
 			IntentFilter filter3 = new IntentFilter();
 			filter3.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
 			filter3.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
 			registerReceiver(mBroadcastReceiver3, filter3);
-//*******Intentfilter3*****************************************************************
+
 
 			textView_Status = findViewById(R.id.tv_Status);
 			textView_BoundedDev = findViewById(R.id.tv_BoundedDevice);
@@ -198,25 +200,27 @@ public class MainActivity extends AppCompatActivity {
 			Button cancel = dialog.findViewById(R.id.btn_cancel);
 			viewModel = new ViewModelProvider(this).get(ItemViewModel.class);
 
+			
 
-			viewModel.getSelectedItem().observe(this, item ->{
+
+			viewModel.seekbar1().observe(this, seekBar1Value ->{
 				try {
 					OutputStream outputStream = btSocket.getOutputStream();
-					outputStream.write(item.getBytes(StandardCharsets.UTF_8));
+					outputStream.write(seekBar1Value.getBytes(StandardCharsets.UTF_8));
 				} catch (Exception e) {}
 			});
 
-			viewModel.getSelectedItem1().observe(this, item1 ->{
+			viewModel.seekbar2().observe(this, seekbar2Value ->{
 				try {
 					OutputStream outputStream = btSocket.getOutputStream();
-					outputStream.write(item1.getBytes(StandardCharsets.UTF_8));
+					outputStream.write(seekbar2Value.getBytes(StandardCharsets.UTF_8));
 				} catch (Exception e) {}
 			});
 
-			viewModel.getSelectedItem2().observe(this, item2 ->{
+			viewModel.seekbar3().observe(this, seekbar3Value ->{
 				try {
 					OutputStream outputStream = btSocket.getOutputStream();
-					outputStream.write(item2.getBytes(StandardCharsets.UTF_8));
+					outputStream.write(seekbar3Value.getBytes(StandardCharsets.UTF_8));
 				} catch (Exception e) {}
 			});
 
@@ -257,11 +261,17 @@ public class MainActivity extends AppCompatActivity {
 							Manifest.permission.BLUETOOTH_CONNECT) != PackageManager.PERMISSION_GRANTED) {
 					}
 					try {
+						try {
+							btSocket.close();
+						}catch (Exception e){
+
+						}
 						btSocket = BT_Device.createRfcommSocketToServiceRecord(MY_UUID);
 						btSocket.connect();
 					} catch (IOException e) {
 						Toast.makeText(MainActivity.this, "konnte nicht verbinden", Toast.LENGTH_SHORT).show();
 					}
+
 					dialog.dismiss();
 					spinner.setSelection(0);
 				}
@@ -303,17 +313,24 @@ public class MainActivity extends AppCompatActivity {
 			for (BluetoothDevice device : devices) {
 				spinner.setAdapter(adapter);
 				//arrayListname.add(device.getName() + ":  " + String.valueOf(device));
+
+				int itemnew = device.getType();
+				Toast.makeText(MainActivity.this, "int: " + itemnew, Toast.LENGTH_LONG).show();
+
 				newarrayList.add(device.getAddress());
 				adapter.notifyDataSetChanged();
 			}
 			newarrayList.add(0, "Bitte Bluetoothgerät wählen");
-			spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+			/*spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
 				@Override
 				public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
 					item = newarrayList.get(position);//In Spinner ausgewählte Position(item)
 					if (item != "Bitte Bluetoothgerät wählen") {
 						TextView textView_dialog = dialog.findViewById(R.id.textView2);
 						textView_dialog.setText("Möchten Sie mit : " + item + " verbinden?");//Text im Dialogfenster
+						byte[] itemnew = item.getBytes(StandardCharsets.UTF_8);
+						Toast.makeText(MainActivity.this, "byte: " + itemnew, Toast.LENGTH_LONG).show();
+
 						dialog.show();
 					}
 				}
@@ -322,7 +339,7 @@ public class MainActivity extends AppCompatActivity {
 				public void onNothingSelected(AdapterView<?> parent) {
 
 				}
-			});
+			});*/
 
 			tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
 				@Override
