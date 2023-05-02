@@ -10,15 +10,16 @@
 		style="@android:style/Widget.SeekBar"
 		android:layout_width="300dp"
 		android:layout_height="50dp"
-		android:layout_marginLeft="20dp"
-		android:layout_marginTop="150dp" />
+		android:layout_marginLeft="-80dp"
+		android:layout_marginTop="250dp"
+		android:rotation="270"/>
 
 	<TextView
 		android:id="@+id/textViewSeekbarVal1"
 		android:layout_width="75dp"
 		android:layout_height="50dp"
-		android:layout_marginLeft="320dp"
-		android:layout_marginTop="150dp"
+		android:layout_marginLeft="35dp"
+		android:layout_marginTop="430dp"
 		android:hint="0"
 		android:textAlignment="center"
 		android:textSize="26dp"
@@ -29,15 +30,16 @@
 		style="@android:style/Widget.SeekBar"
 		android:layout_width="300dp"
 		android:layout_height="50dp"
-		android:layout_marginLeft="20dp"
-		android:layout_marginTop="250dp" />
+		android:layout_marginLeft="50dp"
+		android:layout_marginTop="250dp"
+		android:rotation="270"/>
 
 	<TextView
 		android:id="@+id/textViewSeekbarVal2"
 		android:layout_width="75dp"
 		android:layout_height="50dp"
-		android:layout_marginLeft="320dp"
-		android:layout_marginTop="250dp"
+		android:layout_marginLeft="165dp"
+		android:layout_marginTop="430dp"
 		android:hint="0"
 		android:textAlignment="center"
 		android:textSize="26dp"
@@ -47,8 +49,8 @@
 		android:id="@+id/textViewSeekbarVal3"
 		android:layout_width="75dp"
 		android:layout_height="50dp"
-		android:layout_marginLeft="320dp"
-		android:layout_marginTop="350dp"
+		android:layout_marginLeft="293dp"
+		android:layout_marginTop="430dp"
 		android:hint="0"
 		android:textAlignment="center"
 		android:textSize="26dp"
@@ -59,7 +61,8 @@
 		style="@android:style/Widget.SeekBar"
 		android:layout_width="300dp"
 		android:layout_height="50dp"
-		android:layout_marginLeft="20dp"
-		android:layout_marginTop="350dp" />
+		android:layout_marginLeft="180dp"
+		android:layout_marginTop="250dp"
+		android:rotation="270" />
 
 </FrameLayout>
