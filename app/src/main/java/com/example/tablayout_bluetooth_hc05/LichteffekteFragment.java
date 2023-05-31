@@ -21,7 +21,6 @@ import java.io.IOException;
 
 public class LichteffekteFragment extends Fragment {
 	ItemViewModel viewModel;
-
 	private FragmentLichteffekteBinding binding;
 
 	@Override
